@@ -73,12 +73,12 @@ cd ~
 
 yay -S zathura --noconfirm
 yay -S zathura-pdf-poppler --noconfirm
-cd ~/Linux-Dot-Files/home/.config
+cd ~/Linux-Dot-Files/Home/user/.config
 mv zathura ~/.config
 cd ~
 
 # Moves wallpaper to the Pictures directory
-cd ~/Linux-Dot-Files/home/Pictures
+cd ~/Linux-Dot-Files/Pictures
 mv Rouge.jpg ~/Pictures
 cd ~
 
@@ -103,9 +103,13 @@ cd ~
 
 # Applies the splash screen by changing the ksplashrc file
 
-cd ~/Linux-Dot-Files/home/.config
+cd ~/Linux-Dot-Files/Home/user/.config
 mv ksplashrc ~/.config
 cd ~
+
+# Appends the content of the .bashrc_append file to the user's .bashrc file
+
+cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc
 
 # Removes the Linux-Dot-Files directory
 

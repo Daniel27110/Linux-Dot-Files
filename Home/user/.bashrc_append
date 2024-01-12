@@ -1,0 +1,11 @@
+ 
+preexec () {
+  clear
+}
+preexec_invoke_exec () {
+    [ -n "$COMP_LINE" ] && return                     # do nothing if completing
+    [ "$BASH_COMMAND" = "$PROMPT_COMMAND" ] && return # don't cause a preexec for $PROMPT_COMMAND
+    local this_command=`history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//g"`; # obtain the command from the history, removing the history number at the beginning
+    preexec "$this_command"
+}
+trap 'preexec_invoke_exec' DEBUG

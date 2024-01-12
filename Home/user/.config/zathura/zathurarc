@@ -1,0 +1,33 @@
+set notification-error-bg       "#151627"
+set notification-error-fg       "#a2a3aa"
+set notification-warning-bg     "#151627"
+set notification-warning-fg     "#a2a3aa"
+set notification-bg             "#151627"
+set notification-fg             "#a2a3aa"
+
+set index-bg                    "#151627"
+set index-fg                    "#a2a3aa"
+set index-active-bg             "#c6797e"
+set index-active-fg             "#a2a3aa"
+
+set inputbar-bg                 "#151627"
+set inputbar-fg                 "#a2a3aa"
+
+set statusbar-bg                "#151627"
+set statusbar-fg                "#a2a3aa"
+
+set highlight-color             "#c6797e"
+set highlight-active-color      "#c6797e"
+
+set default-bg                  "#151627"
+set default-fg                  "#a2a3aa"
+set recolor-lightcolor          "#151627"
+set recolor-darkcolor           "#a2a3aa"
+
+set statusbar-h-padding 0
+set statusbar-v-padding 0
+set page-padding 1
+map i recolor
+map p next/previous
+set recolor                     true
+set guioptions none

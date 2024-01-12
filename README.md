@@ -6,14 +6,12 @@ I aim to produce a practical work environment that will hopefully complement the
 
 This config is intended for the KDE Plasma Desktop Environment.
 
-⠀
 
 ### Features:
 
 - Easy to install KDE customization using the [Konsave](https://github.com/Prayag2/konsave) package.
 - An easy to use installation script.
 
-⠀
 
 ### Details:
 
@@ -33,12 +31,8 @@ This config is intended for the KDE Plasma Desktop Environment.
 
 - <strong>Terminal Emulator:</strong> [Konsole](https://konsole.kde.org/)
 
-    
-⠀
-
 
 ### Screenshots:
-
 
 ![1](https://user-images.githubusercontent.com/98629277/211227379-1bec6792-20a9-4247-a00b-73329b76f375.png)
 ![2](https://user-images.githubusercontent.com/98629277/211227382-57d107c1-f677-4b78-b895-73ae802d737e.png)

@@ -18,6 +18,7 @@
 
 # - Yay (AUR Helper)
 # - Firefox
+# - Firewalld
 # - Visual Studio Code (Proprietary)
 # - Papirus Icon Theme
 # - Fira Code Font
@@ -44,6 +45,12 @@ cd ~
 # Installs Firefox
 
 yay -S firefox --noconfirm
+
+# Installs Firewalld
+
+yay -S firewalld --noconfirm
+sudo systemctl enable firewalld.service
+sudo systemctl start firewalld.service
 
 # Installs Visual Studio Code (Proprietary)
 

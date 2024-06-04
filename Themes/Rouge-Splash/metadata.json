@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "d.vargasu@uniandes.edu.co",
+                "Name": "Daniel27110"
+            }
+        ],
+        "Category": "",
+        "Description": "Splashscreen for Plasma6",
+        "Id": "Rouge-Splash",
+        "License": "GPLv3",
+        "Name": "Rouge-Splash",
+        "Website": "https://github.com/Daniel27110/Linux-Dot-Files/tree/main/Themes"
+    },
+    "Keywords": "Desktop;Workspace;Appearance;Look and Feel;Logout;Lock;Suspend;Shutdown;Hibernate;",
+    "X-Plasma-APIVersion": "2"
+}
+

@@ -73,8 +73,8 @@ yay -S ttf-fira-code --noconfirm
 
 yay -S konsave --noconfirm
 cd ~/Linux-Dot-Files/Themes
-konsave -i Rouge.knsv
-konsave -a Rouge
+konsave -i Rouge-03-08-24.knsv
+konsave -a Rouge-03-08-24
 cd ~
 
 # Installs Zathura (PDF Reader)

@@ -4,8 +4,9 @@
 # This script is intended to work in the following environment:
 
 # - Arch Linux (or Arch based distros)
-# - Kde Plasma 5 or higher
+# - Kde Plasma 6 
 # - An active internet connection
+# - Systemd-boot as the bootloader
 
 # How to use:
 
@@ -127,6 +128,13 @@ cd ~
 # Appends the content of the .bashrc_append file to the user's .bashrc file
 
 cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc
+
+# adds "quiet" to the grub configuration file in /boot/loader/entries/yyyy-mm-dd_linux.conf
+# it must be added to the last non-empty line of the file that begins with "options"
+
+cd /boot/loader/entries
+sudo sed -i '/options/ s/$/ quiet/' /boot/loader/entries/$(ls /boot/loader/entries | grep -oP '.*(?=_linux)')_linux.conf
+cd ~
 
 # Removes the Linux-Dot-Files directory
 

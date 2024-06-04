@@ -22,6 +22,8 @@
 # - Visual Studio Code (Proprietary)
 # - Papirus Icon Theme
 # - Fira Code Font
+# - Noto Fonts CJK (Chinese, Japanese, Korean)
+# - Fcitx5 (Input Method Framework)
 # - Konsave (Theme Manager)
 # - Zathura (PDF Reader)
 # - Zathura PDF Poppler (Zathura Plugin)
@@ -69,6 +71,22 @@ papirus-folders -C bluegrey --theme Papirus-Dark
 
 yay -S ttf-fira-code --noconfirm
 
+
+# Installs Noto Fonts CJK (Chinese, Japanese, Korean)
+
+yay -S noto-fonts-cjk --noconfirm
+
+# Installs Fcitx5 (Input Method Framework)
+
+yay -S fcitx5-im --noconfirm
+yay -S fcitx5-mozc --noconfirm
+
+# Set environment variable for fcitx5 inside the etc/environment file
+
+echo "GTK_IM_MODULE=fcitx" | sudo tee -a /etc/environment
+echo "QT_IM_MODULE=fcitx" | sudo tee -a /etc/environment
+echo "XMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment
+
 # Installs Konsave (Theme Manager)
 
 yay -S konsave --noconfirm
@@ -90,23 +108,14 @@ cd ~/Linux-Dot-Files/Pictures
 mv Rouge.jpg ~/Pictures
 cd ~
 
-# Applies the wallpaper to all screens using dbus
+# Applies the wallpaper to all screens
 
-dbus-send --session --dest=org.kde.plasmashell --type=method_call /PlasmaShell org.kde.PlasmaShell.evaluateScript 'string:
-var Desktops = desktops();
-for (i=0;i<Desktops.length;i++) {
-        d = Desktops[i];
-        d.wallpaperPlugin = "org.kde.image";
-        d.currentConfigGroup = Array("Wallpaper",
-                                    "org.kde.image",
-                                    "General");
-        d.writeConfig("Image", "file:/home/'$(whoami)'/Pictures/Rouge.jpg")
-}'
+qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file:///home/daniel/Pictures/Rouge.jpg")}'
 
 # Moves the splash screen to the KDE splash screen directory
 
 cd ~/Linux-Dot-Files/Themes
-sudo mv RougeSplash/ ~/.local/share/plasma/look-and-feel/
+sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 
 # Applies the splash screen by changing the ksplashrc file
@@ -126,6 +135,30 @@ rm -rf ~/Linux-Dot-Files
 # Prints a message to the user
 
 echo "Installation complete!"
+
+# ask the user if they want to add utility applications (zoom, whatsapp, etc.)
+
+echo "Do you want to install utility applications? (Zoom, WhatsApp, etc.) [Y/n]"
+read response
+
+# If the user types 'Y' or 'y', the script will install the utility applications
+if [ "$response" = "Y" ] || [ "$response" = "y" ]; then
+
+        # Installs utility applications
+
+        echo "Installing utility applications..."
+
+        # Installs Zoom
+
+        yay -S zoom --noconfirm
+
+        # Installs WhatsApp
+
+        yay -S whatsdesk-bin --noconfirm
+
+else
+    echo "Skipping utility applications installation."
+fi
 
 # Reboots the system in 10 seconds
 

@@ -215,6 +215,10 @@ run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.k
 # Moves the splash screen to the KDE splash screen directory
 echo -n "Moving splash screen..."
 cd ~/Linux-Dot-Files/Themes/Splash/
+# if the directory in ~/.local/share/plasma/look-and-feel/ is not empty, remove it
+if [ -d "~/.local/share/plasma/look-and-feel/Rouge-Splash" ]; then
+    sudo rm -rf ~/.local/share/plasma/look-and-feel/Rouge-Splash
+fi
 run_with_spinner "move_splash_screen" sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 
@@ -263,8 +267,7 @@ cd /boot/loader/entries
 if is_step_completed "configure_bootloader"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
-    sudo sed -i '/options/ s/$/ quiet/' "$(ls | grep -oP '.*(?=_linux)')"_linux.conf && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader" || printf "\e[31mFAILED\e[0m\n"
-
+    for file in *_linux.conf; do sudo sed -i '/options/ s/$/ quiet/' "$file" && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader" || printf "\e[31mFAILED\e[0m\n"; done
 fi
 cd ~
 

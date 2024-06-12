@@ -206,7 +206,7 @@ cd ~
 
 # Install qdbus6
 echo -n "Installing qdbus..."
-run_with_spinner "install_qdbus6" sudo pacman -S qt6-tools-desktop --noconfirm
+run_with_spinner "install_qdbus6" yay -S qt6-tools-desktop --noconfirm
 
 # Applies the wallpaper to all screens
 echo -n "Applying wallpaper..."
@@ -214,7 +214,7 @@ run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.k
 
 # Moves the splash screen to the KDE splash screen directory
 echo -n "Moving splash screen..."
-cd ~/Linux-Dot-Files/Themes/Splash
+cd ~/Linux-Dot-Files/Themes/Splash/
 run_with_spinner "move_splash_screen" sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 
@@ -235,7 +235,7 @@ run_with_spinner "install_qt5_quickcontrols2" yay -S qt5-quickcontrols2 --noconf
 
 # Move the login screen to the SDDM theme directory
 echo -n "Moving login screen..."
-cd ~/Linux-Dot-Files/Themes/Login
+cd ~/Linux-Dot-Files/Themes/Login/
 run_with_spinner "move_login_screen" sudo mv Rouge/ /usr/share/sddm/themes/
 cd ~
 
@@ -245,7 +245,7 @@ cd ~/Linux-Dot-Files/Home/user/.config
 if [ ! -d "/etc/sddm.conf.d/" ]; then
     sudo mkdir /etc/sddm.conf.d/
 fi
-run_with_spinner "move_sddm_config" sudo mv sddm.conf /etc/sddm.conf.d/
+run_with_spinner "move_sddm_config" sudo mv kde_settings.conf /etc/sddm.conf.d/
 cd ~
 
 # Appends the content of the .bashrc_append file to the user's .bashrc file
@@ -263,7 +263,8 @@ cd /boot/loader/entries
 if is_step_completed "configure_bootloader"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
-    sudo sed -i '/options/ s/$/ quiet/' $(ls | grep -oP '.*(?=_linux)')_linux.conf && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader" || printf "\e[31mFAILED\e[0m\n"
+    sudo sed -i '/options/ s/$/ quiet/' "$(ls | grep -oP '.*(?=_linux)')"_linux.conf && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader" || printf "\e[31mFAILED\e[0m\n"
+
 fi
 cd ~
 

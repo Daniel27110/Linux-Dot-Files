@@ -216,9 +216,7 @@ run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.k
 echo -n "Moving splash screen..."
 cd ~/Linux-Dot-Files/Themes/Splash/
 # if the directory in ~/.local/share/plasma/look-and-feel/ is not empty, remove it
-if [ -d "~/.local/share/plasma/look-and-feel/Rouge-Splash" ]; then
-    sudo rm -rf ~/.local/share/plasma/look-and-feel/Rouge-Splash
-fi
+sudo rm -rf ~/.local/share/plasma/look-and-feel/Rouge-Splash
 run_with_spinner "move_splash_screen" sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 

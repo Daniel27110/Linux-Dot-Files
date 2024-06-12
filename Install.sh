@@ -17,6 +17,8 @@
 # - Firefox
 # - Firewalld
 # - Visual Studio Code (Proprietary)
+# - Gwenview (Image Viewer)
+# - Kio-admin (Root File Manager)
 # - Papirus Icon Theme
 # - Fira Code Font
 # - Noto Fonts CJK (Chinese, Japanese, Korean)
@@ -85,6 +87,14 @@ cd visual-studio-code-bin
 run_with_spinner makepkg -si --noconfirm
 cd ~
 
+# Installs Gwenview (Image Viewer)
+echo "Installing Gwenview..."
+run_with_spinner yay -S gwenview --noconfirm
+
+# Installs Kio-admin (Root File Manager)
+echo "Installing Kio-admin..."
+run_with_spinner yay -S kio-admin --noconfirm
+
 # Installs Papirus Icon Theme
 echo "Installing Papirus Icon Theme..."
 run_with_spinner yay -S papirus-icon-theme --noconfirm
@@ -132,13 +142,17 @@ cd ~/Linux-Dot-Files/Pictures
 run_with_spinner mv Rouge.jpg ~/Pictures
 cd ~
 
+# Install qdbus6
+echo "Installing qdbus..."
+run_with_spinner sudo pacman -S qt6-tools-desktop --noconfirm
+
 # Applies the wallpaper to all screens
 echo "Applying wallpaper..."
-run_with_spinner qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file:///home/daniel/Pictures/Rouge.jpg")}'
+run_with_spinner qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file:///home/daniel/Pictures/Rouge.jpg")}'
 
 # Moves the splash screen to the KDE splash screen directory
 echo "Moving splash screen..."
-cd ~/Linux-Dot-Files/Themes
+cd ~/Linux-Dot-Files/Themes/Splash
 run_with_spinner sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 
@@ -148,14 +162,32 @@ cd ~/Linux-Dot-Files/Home/user/.config
 run_with_spinner mv ksplashrc ~/.config
 cd ~
 
+# Install required packages for the login screen
+echo "Installing required packages for the login screen..."
+run_with_spinner yay -S qt5-graphicaleffects --noconfirm
+run_with_spinner yay -S qt5-quickcontrols --noconfirm
+run_with_spinner yay -S qt5-quickcontrols2 --noconfirm
+
+# Move the login screen to the SDDM theme directory
+echo "Moving login screen..."
+cd ~/Linux-Dot-Files/Themes/Login
+run_with_spinner sudo mv Rouge/ /usr/share/sddm/themes/
+cd ~
+
+# Applies the login screen by changing the sddm.conf file
+echo "Applying login screen..."
+cd ~/Linux-Dot-Files/Home/user/.config
+run_with_spinner mv kde_settings.conf /etc/sddm.conf.d/
+cd ~
+
 # Appends the content of the .bashrc_append file to the user's .bashrc file
 echo "Configuring .bashrc..."
-run_with_spinner cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc
+cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc
 
 # adds "quiet" to the grub configuration file in /boot/loader/entries/yyyy-mm-dd_linux.conf
 echo "Configuring bootloader..."
 cd /boot/loader/entries
-run_with_spinner sudo sed -i '/options/ s/$/ quiet/' /boot/loader/entries/$(ls /boot/loader/entries | grep -oP '.*(?=_linux)')_linux.conf
+sudo sed -i '/options/ s/$/ quiet/' /boot/loader/entries/$(ls /boot/loader/entries | grep -oP '.*(?=_linux)')_linux.conf
 cd ~
 
 # Removes the Linux-Dot-Files directory
@@ -163,7 +195,7 @@ echo "Cleaning up..."
 run_with_spinner rm -rf ~/Linux-Dot-Files
 
 # Prints a message to the user
-echo "Installation complete!"
+printf "\nInstallation complete!\n"
 
 # ask the user if they want to add utility applications (zoom, whatsapp, etc.)
 echo "Do you want to install utility applications? (Zoom, WhatsApp, etc.) [Y/n]"
@@ -186,7 +218,7 @@ else
 fi
 
 # Reboots the system in 10 seconds
-echo "Rebooting in 10 seconds..."
+printf "\nRebooting system in 10 seconds...\n"
 sleep 10
 reboot
 

@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=Rouge
+Description=Theme for SDDM
+Author=Daniel Vargas
+Copyright=Copyright (C) 2018 Marian Arlt
+License=GPL-3.0-or-later
+Type=sddm-theme
+Version=1.6
+Website=https://github.com/Daniel27110/Linux-Dot-Files
+Screenshot=Previews/PartialBlur.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Email=d.vargasu@uniandes.edu.co
+Theme-Id=Rouge
+Theme-API=2.11

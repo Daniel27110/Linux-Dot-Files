@@ -101,7 +101,7 @@ run_with_spinner "update_system" sudo pacman -Syu --noconfirm
 cd ~
 
 # Installs Yay (AUR Helper)
-echo -n "Installing Yay..."
+echo "Installing Yay..."
 echo -n "    Installing required packages..."
 run_with_spinner "install_yay" sudo pacman -S --needed git base-devel --noconfirm
 echo -n "    Cloning yay repository..."
@@ -116,7 +116,7 @@ echo -n "Installing Firefox..."
 run_with_spinner "install_firefox" yay -S firefox --noconfirm
 
 # Installs Firewalld
-echo -n "Installing Firewalld..."
+echo "Installing Firewalld..."
 echo -n "    Installing firewalld..."
 run_with_spinner "install_firewalld" yay -S firewalld --noconfirm
 echo -n "    Enabling firewalld..."
@@ -125,7 +125,7 @@ echo -n "    Starting firewalld..."
 run_with_spinner "start_firewalld" sudo systemctl start firewalld.service
 
 # Installs Visual Studio Code (Proprietary)
-echo -n "Installing Visual Studio Code..."
+echo "Installing Visual Studio Code..."
 echo -n "    Installing required packages..."
 run_with_spinner "clone_vscode_repo" git clone https://aur.archlinux.org/visual-studio-code-bin.git
 cd visual-studio-code-bin
@@ -142,7 +142,7 @@ echo -n "Installing Kio-admin..."
 run_with_spinner "install_kio_admin" yay -S kio-admin --noconfirm
 
 # Installs Papirus Icon Theme
-echo -n "Installing Papirus Icon Theme..."
+echo "Installing Papirus Icon Theme..."
 echo -n "    Installing Papirus Icon Theme..."
 run_with_spinner "install_papirus_icon_theme" yay -S papirus-icon-theme --noconfirm
 echo -n "    Installing Papirus Folders..."
@@ -159,7 +159,7 @@ echo -n "Installing Noto Fonts CJK..."
 run_with_spinner "install_noto_fonts_cjk" yay -S noto-fonts-cjk --noconfirm
 
 # Installs Fcitx5 (Input Method Framework)
-echo -n "Installing Fcitx5..."
+echo "Installing Fcitx5..."
 echo -n "    Installing Fcitx5..."
 run_with_spinner "install_fcitx5_im" yay -S fcitx5-im --noconfirm
 echo -n "    Installing Fcitx5 Mozc..."
@@ -173,11 +173,11 @@ echo -n "Configuring Fcitx5..."
 if is_step_completed "configure_fcitx5"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
-    {sudo tee -a /etc/environment <<< "GTK_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "QT_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "XMODIFIERS=@im=fcitx" && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_fcitx5";} || {printf "\e[31mFAILED\e[0m\n";}
+    sudo tee -a /etc/environment <<< "GTK_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "QT_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "XMODIFIERS=@im=fcitx" && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_fcitx5" || printf "\e[31mFAILED\e[0m\n"
 fi
 
 # Installs Konsave (Theme Manager)
-echo -n "Installing Konsave..."
+echo "Installing Konsave..."
 echo -n "    Installing Konsave..."
 run_with_spinner "install_konsave" yay -S konsave --noconfirm
 cd ~/Linux-Dot-Files/Themes
@@ -188,7 +188,7 @@ run_with_spinner "apply_konsave_theme" konsave -a Rouge-03-08-24
 cd ~
 
 # Installs Zathura (PDF Reader)
-echo -n "Installing Zathura..."
+echo "Installing Zathura..."
 echo -n "    Installing Zathura..."
 run_with_spinner "install_zathura" yay -S zathura --noconfirm
 echo -n "    Installing Zathura Plugins..."
@@ -225,7 +225,7 @@ run_with_spinner "apply_splash_screen" mv ksplashrc ~/.config
 cd ~
 
 # Install required packages for the login screen
-echo -n "Installing required packages for the login screen..."
+echo "Installing required packages for the login screen..."
 echo -n "    Installing qt5-graphicaleffects..."
 run_with_spinner "install_qt5_graphicaleffects" yay -S qt5-graphicaleffects --noconfirm
 echo -n "    Installing qt5-quickcontrols..."
@@ -253,7 +253,7 @@ echo -n "Configuring .bashrc..."
 if is_step_completed "configure_bashrc"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
-    {cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bashrc";} || {printf "\e[31mFAILED\e[0m\n";}
+    cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bashrc" || printf "\e[31mFAILED\e[0m\n"
 fi
 
 # adds "quiet" to the grub configuration file in /boot/loader/entries/yyyy-mm-dd_linux.conf
@@ -263,7 +263,7 @@ cd /boot/loader/entries
 if is_step_completed "configure_bootloader"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
-    {sudo sed -i '/options/ s/$/ quiet/' $(ls | grep -oP '.*(?=_linux)')_linux.conf && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader";} || {printf "\e[31mFAILED\e[0m\n";}
+    sudo sed -i '/options/ s/$/ quiet/' $(ls | grep -oP '.*(?=_linux)')_linux.conf && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader" || printf "\e[31mFAILED\e[0m\n"
 fi
 cd ~
 

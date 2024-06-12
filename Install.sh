@@ -238,6 +238,8 @@ run_with_spinner "install_qt5_quickcontrols2" yay -S qt5-quickcontrols2 --noconf
 # Move the login screen to the SDDM theme directory
 echo -n "Moving login screen..."
 cd ~/Linux-Dot-Files/Themes/Login/
+# if the directory in /usr/share/sddm/themes/ is not empty, remove it
+sudo rm -rf /usr/share/sddm/themes/Rouge
 run_with_spinner "move_login_screen" sudo mv Rouge/ /usr/share/sddm/themes/
 cd ~
 

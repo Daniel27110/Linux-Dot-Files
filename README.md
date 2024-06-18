@@ -37,5 +37,6 @@ This config is intended for the KDE Plasma Desktop Environment.
 
 ![Screenshot_20240613_223656](https://github.com/Daniel27110/Linux-Dot-Files/assets/98629277/d4124fd6-74c9-4e93-a32d-f11c9d3153f5)
 ![211227382-57d107c1-f677-4b78-b895-73ae802d737e](https://github.com/Daniel27110/Linux-Dot-Files/assets/98629277/1f656502-3a89-4fc4-baf4-26eb43038066)
-![2](https://user-images.githubusercontent.com/98629277/233811238-9fbef451-42c7-477f-8f78-1177934a7e49.png)
+![233811238-9fbef451-42c7-477f-8f78-1177934a7e492](https://github.com/Daniel27110/Linux-Dot-Files/assets/98629277/cf8ff019-b970-463c-bd8a-c3d92a202b9a)
+
 

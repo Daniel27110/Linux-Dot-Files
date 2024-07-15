@@ -271,13 +271,6 @@ else
 fi
 cd ~
 
-# Removes the Linux-Dot-Files directory
-echo -n "Cleaning up..."
-run_with_spinner "cleanup" rm -rf ~/Linux-Dot-Files
-
-# Prints a message to the user
-printf "\nInstallation complete!\n"
-
 # ask the user if they want to add utility applications (zoom, whatsapp, etc.)
 echo "Do you want to install utility applications? (Zoom, WhatsApp, etc.) [Y/n]"
 read response
@@ -294,9 +287,26 @@ if [ "$response" = "Y" ] || [ "$response" = "y" ]; then
     # Installs WhatsApp
     echo -n "Installing WhatsApp..."
     run_with_spinner "install_whatsapp" yay -S whatsdesk-bin --noconfirm
+
+    # Installs anki
+    echo -n "Installing Anki..."
+    run_with_spinner "install_anki" yay -S anki-bin --noconfirm
+
+    # apply anki addons from the Home/user/.local/share/Anki2/addons21/ directory, moving all folders inside the addons21 directory
+    echo -n "Applying Anki addons..."
+    cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
+    run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
+    cd ~
 else
     echo "Skipping utility applications installation."
 fi
+
+# Removes the Linux-Dot-Files directory
+echo -n "Cleaning up..."
+run_with_spinner "cleanup" rm -rf ~/Linux-Dot-Files
+
+# Prints a message to the user
+printf "\nInstallation complete!\n"
 
 # Reboots the system in 10 seconds
 printf "\nRebooting system in 10 seconds...\n"

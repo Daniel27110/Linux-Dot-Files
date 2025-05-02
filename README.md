@@ -1,10 +1,8 @@
 # Linux-Dot-Files
 
-This desktop config was inspired by the beautiful Rouge Theme for VSCode by [Josef](https://github.com/josefaidt), in particular his extra cozy theme known as Rogue 2.
+This desktop config was inspired by the beautiful Rouge Theme for VSCode by [Josef](https://github.com/josefaidt), in particular his extra cozy theme *Rogue 2*. My goal is to create a practical workspace that still captures the calm and cozy vibe of the original Rouge theme. 
 
-I aim to produce a practical work environment that will hopefully complement the calm and comfortable feel of the original Rouge theme. 
-
-This config is intended for the KDE Plasma Desktop Environment.
+This config is intended for the KDE Plasma 6 Desktop Environment.
 
 
 ### Features:

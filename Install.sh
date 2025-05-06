@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# ==============================================================================
+# Script Information
+# ==============================================================================
+
 # This script is intended to work in the following environment:
 # - Arch Linux (or Arch based distros)
-# - Kde Plasma 6 
+# - KDE Plasma 6
 # - An active internet connection
 # - Systemd-boot as the bootloader
 
@@ -26,6 +30,10 @@
 # - Konsave (Theme Manager)
 # - Zathura (PDF Reader)
 # - Zathura PDF Poppler (Zathura Plugin)
+
+# ==============================================================================
+# Initialization
+# ==============================================================================
 
 LOG_FILE=~/install_steps.log
 
@@ -93,14 +101,17 @@ run_with_spinner() {
 # Keep sudo session alive
 keep_sudo_alive
 
-# Updates the system
+# ==============================================================================
+# System Update
+# ==============================================================================
+
 echo -n "Updating system..."
 run_with_spinner "update_system" sudo pacman -Syu --noconfirm
 
-# Moves to the home directory
-cd ~
+# ==============================================================================
+# Install Yay (AUR Helper)
+# ==============================================================================
 
-# Installs Yay (AUR Helper)
 echo "Installing Yay..."
 echo -n "    Installing required packages..."
 run_with_spinner "install_yay" sudo pacman -S --needed git base-devel --noconfirm
@@ -111,11 +122,15 @@ echo -n "    Building and installing yay..."
 run_with_spinner "makepkg_yay" makepkg -si --noconfirm
 cd ~
 
-# Installs Firefox
+# ==============================================================================
+# Install Applications
+# ==============================================================================
+
+# Install Firefox
 echo -n "Installing Firefox..."
 run_with_spinner "install_firefox" yay -S firefox --noconfirm
 
-# Installs Firewalld
+# Install Firewalld
 echo "Installing Firewalld..."
 echo -n "    Installing firewalld..."
 run_with_spinner "install_firewalld" yay -S firewalld --noconfirm
@@ -124,7 +139,7 @@ run_with_spinner "enable_firewalld" sudo systemctl enable firewalld.service
 echo -n "    Starting firewalld..."
 run_with_spinner "start_firewalld" sudo systemctl start firewalld.service
 
-# Installs Visual Studio Code (Proprietary)
+# Install Visual Studio Code
 echo "Installing Visual Studio Code..."
 echo -n "    Installing required packages..."
 run_with_spinner "clone_vscode_repo" git clone https://aur.archlinux.org/visual-studio-code-bin.git
@@ -133,15 +148,19 @@ echo -n "    Building and installing Visual Studio Code..."
 run_with_spinner "makepkg_vscode" makepkg -si --noconfirm
 cd ~
 
-# Installs Gwenview (Image Viewer)
+# Install Gwenview
 echo -n "Installing Gwenview..."
 run_with_spinner "install_gwenview" yay -S gwenview --noconfirm
 
-# Installs Kio-admin (Root File Manager)
+# Install Kio-admin
 echo -n "Installing Kio-admin..."
 run_with_spinner "install_kio_admin" yay -S kio-admin --noconfirm
 
-# Installs Papirus Icon Theme
+# ==============================================================================
+# Install Themes and Fonts
+# ==============================================================================
+
+# Install Papirus Icon Theme
 echo "Installing Papirus Icon Theme..."
 echo -n "    Installing Papirus Icon Theme..."
 run_with_spinner "install_papirus_icon_theme" yay -S papirus-icon-theme --noconfirm
@@ -150,33 +169,35 @@ run_with_spinner "install_papirus_folders" yay -S papirus-folders-git --noconfir
 echo -n "    Configuring Papirus Folders..."
 run_with_spinner "configure_papirus_folders" papirus-folders -C bluegrey --theme Papirus-Dark
 
-# Installs Fira Code Font
+# Install Fira Code Font
 echo -n "Installing Fira Code Font..."
 run_with_spinner "install_fira_code_font" yay -S ttf-fira-code --noconfirm
 
-# Installs Noto Fonts CJK (Chinese, Japanese, Korean)
+# Install Noto Fonts CJK
 echo -n "Installing Noto Fonts CJK..."
 run_with_spinner "install_noto_fonts_cjk" yay -S noto-fonts-cjk --noconfirm
 
-# Installs Fcitx5 (Input Method Framework)
+# ==============================================================================
+# Configure Fcitx5 (Input Method Framework)
+# ==============================================================================
+
 echo "Installing Fcitx5..."
 echo -n "    Installing Fcitx5..."
 run_with_spinner "install_fcitx5_im" yay -S fcitx5-im --noconfirm
 echo -n "    Installing Fcitx5 Mozc..."
 run_with_spinner "install_fcitx5_mozc" yay -S fcitx5-mozc --noconfirm
 
-# Set environment variable for fcitx5 inside the etc/environment file
 echo -n "Configuring Fcitx5..."
-# sudo tee -a /etc/environment <<< "GTK_IM_MODULE=fcitx"
-# sudo tee -a /etc/environment <<< "QT_IM_MODULE=fcitx"
-# sudo tee -a /etc/environment <<< "XMODIFIERS=@im=fcitx"
 if is_step_completed "configure_fcitx5"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
     sudo tee -a /etc/environment <<< "GTK_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "QT_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "XMODIFIERS=@im=fcitx" && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_fcitx5" || printf "\e[31mFAILED\e[0m\n"
 fi
 
-# Installs Konsave (Theme Manager)
+# ==============================================================================
+# Install Konsave (Theme Manager)
+# ==============================================================================
+
 echo "Installing Konsave..."
 echo -n "    Installing Konsave..."
 run_with_spinner "install_konsave" yay -S konsave --noconfirm
@@ -187,7 +208,10 @@ echo -n "    Applying Konsave theme..."
 run_with_spinner "apply_konsave_theme" konsave -a Rouge-03-08-24
 cd ~
 
-# Installs Zathura (PDF Reader)
+# ==============================================================================
+# Install Zathura (PDF Reader)
+# ==============================================================================
+
 echo "Installing Zathura..."
 echo -n "    Installing Zathura..."
 run_with_spinner "install_zathura" yay -S zathura --noconfirm
@@ -198,35 +222,37 @@ echo -n "    Configuring Zathura..."
 run_with_spinner "move_zathura_config" mv zathura ~/.config
 cd ~
 
-# Moves wallpaper to the Pictures directory
+# ==============================================================================
+# Configure Wallpaper
+# ==============================================================================
+
 echo -n "Moving wallpaper to Pictures directory..."
 cd ~/Linux-Dot-Files/Pictures
 run_with_spinner "move_wallpaper" mv Rouge.jpg ~/Pictures
 cd ~
 
-# Install qdbus6
-echo -n "Installing qdbus..."
-run_with_spinner "install_qdbus6" yay -S qt6-tools-desktop --noconfirm
-
-# Applies the wallpaper to all screens
 echo -n "Applying wallpaper..."
 run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file:///home/daniel/Pictures/Rouge.jpg")}'
 
-# Moves the splash screen to the KDE splash screen directory
+# ==============================================================================
+# Configure Splash Screen
+# ==============================================================================
+
 echo -n "Moving splash screen..."
 cd ~/Linux-Dot-Files/Themes/Splash/
-# if the directory in ~/.local/share/plasma/look-and-feel/ is not empty, remove it
 sudo rm -rf ~/.local/share/plasma/look-and-feel/Rouge-Splash
 run_with_spinner "move_splash_screen" sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 
-# Applies the splash screen by changing the ksplashrc file
 echo -n "Applying splash screen..."
 cd ~/Linux-Dot-Files/Home/user/.config
 run_with_spinner "apply_splash_screen" mv ksplashrc ~/.config
 cd ~
 
-# Install required packages for the login screen
+# ==============================================================================
+# Configure Login Screen
+# ==============================================================================
+
 echo "Installing required packages for the login screen..."
 echo -n "    Installing qt5-graphicaleffects..."
 run_with_spinner "install_qt5_graphicaleffects" yay -S qt5-graphicaleffects --noconfirm
@@ -235,15 +261,12 @@ run_with_spinner "install_qt5_quickcontrols" yay -S qt5-quickcontrols --noconfir
 echo -n "    Installing qt5-quickcontrols2..."
 run_with_spinner "install_qt5_quickcontrols2" yay -S qt5-quickcontrols2 --noconfirm
 
-# Move the login screen to the SDDM theme directory
 echo -n "Moving login screen..."
 cd ~/Linux-Dot-Files/Themes/Login/
-# if the directory in /usr/share/sddm/themes/ is not empty, remove it
 sudo rm -rf /usr/share/sddm/themes/Rouge
 run_with_spinner "move_login_screen" sudo mv Rouge/ /usr/share/sddm/themes/
 cd ~
 
-# Applies the login screen by changing the sddm.conf file (if the folder /etc/sddm.conf.d/ does not exist, create it)
 echo -n "Applying login screen..."
 cd ~/Linux-Dot-Files/Home/user/.config
 if [ ! -d "/etc/sddm.conf.d/" ]; then
@@ -252,7 +275,10 @@ fi
 run_with_spinner "move_sddm_config" sudo mv kde_settings.conf /etc/sddm.conf.d/
 cd ~
 
-# Appends the content of the .bashrc_append file to the user's .bashrc file
+# ==============================================================================
+# Configure .bashrc
+# ==============================================================================
+
 echo -n "Configuring .bashrc..."
 if is_step_completed "configure_bashrc"; then
     printf "\e[33mSKIPPED\e[0m\n"
@@ -260,10 +286,12 @@ else
     cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bashrc" || printf "\e[31mFAILED\e[0m\n"
 fi
 
-# adds "quiet" to the grub configuration file in /boot/loader/entries/yyyy-mm-dd_linux.conf
+# ==============================================================================
+# Configure Bootloader
+# ==============================================================================
+
 echo -n "Configuring bootloader..."
 cd /boot/loader/entries
-# sudo sed -i '/options/ s/$/ quiet/' /boot/loader/entries/$(ls /boot/loader/entries | grep -oP '.*(?=_linux)')_linux.conf
 if is_step_completed "configure_bootloader"; then
     printf "\e[33mSKIPPED\e[0m\n"
 else
@@ -271,28 +299,29 @@ else
 fi
 cd ~
 
-# ask the user if they want to add utility applications (zoom, whatsapp, etc.)
+# ==============================================================================
+# Install Utility Applications (Optional)
+# ==============================================================================
+
 echo "Do you want to install utility applications? (Zoom, WhatsApp, etc.) [Y/n]"
 read response
 
-# If the user types 'Y' or 'y', the script will install the utility applications
 if [ "$response" = "Y" ] || [ "$response" = "y" ]; then
-    # Installs utility applications
     printf "\nInstalling utility applications...\n"
 
-    # Installs Zoom
+    # Install Zoom
     echo -n "Installing Zoom..."
     run_with_spinner "install_zoom" yay -S zoom --noconfirm
 
-    # Installs WhatsApp
+    # Install WhatsApp
     echo -n "Installing WhatsApp..."
     run_with_spinner "install_whatsapp" yay -S whatsdesk-bin --noconfirm
 
-    # Installs anki
+    # Install Anki
     echo -n "Installing Anki..."
     run_with_spinner "install_anki" yay -S anki-bin --noconfirm
 
-    # apply anki addons from the Home/user/.local/share/Anki2/addons21/ directory, moving all folders inside the addons21 directory
+    # Apply Anki Addons
     echo -n "Applying Anki addons..."
     cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
     run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
@@ -301,14 +330,18 @@ else
     echo "Skipping utility applications installation."
 fi
 
-# Removes the Linux-Dot-Files directory
+# ==============================================================================
+# Cleanup
+# ==============================================================================
+
 echo -n "Cleaning up..."
 run_with_spinner "cleanup" rm -rf ~/Linux-Dot-Files
 
-# Prints a message to the user
-printf "\nInstallation complete!\n"
+# ==============================================================================
+# Final Steps
+# ==============================================================================
 
-# Reboots the system in 10 seconds
+printf "\nInstallation complete!\n"
 printf "\nRebooting system in 10 seconds...\n"
 sleep 10
 reboot

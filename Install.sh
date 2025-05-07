@@ -53,35 +53,37 @@ if [ ! -f $LOG_FILE ]; then
 fi
 
 # Prompt for sudo password upfront to prevent interruptions
+sudo -k  # Clear any existing sudo session
 echo "Please enter your sudo password:"
 sudo -v
 
-# Function to keep sudo session alive
+# Keep sudo session alive
 keep_sudo_alive() {
     while true; do sudo -v; sleep 60; done &
+    SUDO_KEEP_ALIVE_PID=$!
 }
 
-# Function to show a loading spinner
+# Improved spinner function with consistent tab alignment
 spinner() {
     local pid=$!
     local delay=0.1
     local spinstr='|/-\'
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf " [%c]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
+    local i=0
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i + 1) % 4 ))
+        printf "\r\t[%c]  " "${spinstr:$i:1}"  # Add a tab before the spinner
         sleep $delay
-        printf "\b\b\b\b\b\b"
     done
-    printf "    \b\b\b\b"
+    printf "\r\t    \r"  # Clear the spinner line with a tab
 }
 
 # Function to run a command with spinner
 run_with_spinner() {
     local step="$1"
     shift
+    echo ""
     if is_step_completed "$step"; then
-        printf "\e[33mSKIPPED\e[0m\n"
+        printf "\t\e[33mSKIPPED\e[0m\n"  # Add a tab before "SKIPPED"
         return 0
     fi
     local command="$*"
@@ -90,9 +92,9 @@ run_with_spinner() {
     wait $!
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
-        printf "\e[31mFAILED\e[0m\n"
+        printf "\t\e[31mFAILED\e[0m\n"  # Add a tab before "FAILED"
     else
-        printf "\e[32mSUCCESS\e[0m\n"
+        printf "\t\e[32mSUCCESS\e[0m\n"  # Add a tab before "SUCCESS"
         log_step "$step"
     fi
     return $exit_code
@@ -105,14 +107,16 @@ keep_sudo_alive
 # System Update
 # ==============================================================================
 
-echo -n "Updating system..."
+echo -e "\n\e[1mUpdating system.\e[0m"
+echo -n "    Running system update..."
+cd ~
 run_with_spinner "update_system" sudo pacman -Syu --noconfirm
 
 # ==============================================================================
 # Install Yay (AUR Helper)
 # ==============================================================================
 
-echo "Installing Yay..."
+echo -e "\n\e[1mInstalling Yay.\e[0m"
 echo -n "    Installing required packages..."
 run_with_spinner "install_yay" sudo pacman -S --needed git base-devel --noconfirm
 echo -n "    Cloning yay repository..."
@@ -126,42 +130,37 @@ cd ~
 # Install Applications
 # ==============================================================================
 
-# Install Firefox
-echo -n "Installing Firefox..."
+echo -e "\n\e[1mInstalling applications.\e[0m"
+
+echo -n "    Installing Firefox..."
 run_with_spinner "install_firefox" yay -S firefox --noconfirm
 
-# Install Firewalld
-echo "Installing Firewalld..."
-echo -n "    Installing firewalld..."
+echo -n "    Installing Firewalld..."
 run_with_spinner "install_firewalld" yay -S firewalld --noconfirm
-echo -n "    Enabling firewalld..."
+echo -n "    Enabling Firewalld..."
 run_with_spinner "enable_firewalld" sudo systemctl enable firewalld.service
-echo -n "    Starting firewalld..."
+echo -n "    Starting Firewalld..."
 run_with_spinner "start_firewalld" sudo systemctl start firewalld.service
 
-# Install Visual Studio Code
-echo "Installing Visual Studio Code..."
-echo -n "    Installing required packages..."
+echo -n "    Installing Visual Studio Code..."
 run_with_spinner "clone_vscode_repo" git clone https://aur.archlinux.org/visual-studio-code-bin.git
 cd visual-studio-code-bin
 echo -n "    Building and installing Visual Studio Code..."
 run_with_spinner "makepkg_vscode" makepkg -si --noconfirm
 cd ~
 
-# Install Gwenview
-echo -n "Installing Gwenview..."
+echo -n "    Installing Gwenview..."
 run_with_spinner "install_gwenview" yay -S gwenview --noconfirm
 
-# Install Kio-admin
-echo -n "Installing Kio-admin..."
+echo -n "    Installing Kio-admin..."
 run_with_spinner "install_kio_admin" yay -S kio-admin --noconfirm
 
 # ==============================================================================
 # Install Themes and Fonts
 # ==============================================================================
 
-# Install Papirus Icon Theme
-echo "Installing Papirus Icon Theme..."
+echo -e "\n\e[1mInstalling themes and fonts.\e[0m"
+
 echo -n "    Installing Papirus Icon Theme..."
 run_with_spinner "install_papirus_icon_theme" yay -S papirus-icon-theme --noconfirm
 echo -n "    Installing Papirus Folders..."
@@ -169,36 +168,33 @@ run_with_spinner "install_papirus_folders" yay -S papirus-folders-git --noconfir
 echo -n "    Configuring Papirus Folders..."
 run_with_spinner "configure_papirus_folders" papirus-folders -C bluegrey --theme Papirus-Dark
 
-# Install Fira Code Font
-echo -n "Installing Fira Code Font..."
+echo -n "    Installing Fira Code Font..."
 run_with_spinner "install_fira_code_font" yay -S ttf-fira-code --noconfirm
 
-# Install Noto Fonts CJK
-echo -n "Installing Noto Fonts CJK..."
+echo -n "    Installing Noto Fonts CJK..."
 run_with_spinner "install_noto_fonts_cjk" yay -S noto-fonts-cjk --noconfirm
 
 # ==============================================================================
 # Configure Fcitx5 (Input Method Framework)
 # ==============================================================================
 
-echo "Installing Fcitx5..."
+echo -e "\n\e[1mConfiguring Fcitx5.\e[0m"
+
 echo -n "    Installing Fcitx5..."
 run_with_spinner "install_fcitx5_im" yay -S fcitx5-im --noconfirm
 echo -n "    Installing Fcitx5 Mozc..."
 run_with_spinner "install_fcitx5_mozc" yay -S fcitx5-mozc --noconfirm
 
-echo -n "Configuring Fcitx5..."
-if is_step_completed "configure_fcitx5"; then
-    printf "\e[33mSKIPPED\e[0m\n"
-else
-    sudo tee -a /etc/environment <<< "GTK_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "QT_IM_MODULE=fcitx" && sudo tee -a /etc/environment <<< "XMODIFIERS=@im=fcitx" && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_fcitx5" || printf "\e[31mFAILED\e[0m\n"
-fi
+echo -n "    Configuring Fcitx5 environment variables..."
+run_with_spinner "configure_fcitx5" bash -c 'echo "GTK_IM_MODULE=fcitx" | sudo tee -a /etc/environment > /dev/null && \
+echo "QT_IM_MODULE=fcitx" | sudo tee -a /etc/environment > /dev/null && \
+echo "XMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment > /dev/null'
 
 # ==============================================================================
 # Install Konsave (Theme Manager)
 # ==============================================================================
 
-echo "Installing Konsave..."
+echo -e "\n\e[1mInstalling Konsave.\e[0m"
 echo -n "    Installing Konsave..."
 run_with_spinner "install_konsave" yay -S konsave --noconfirm
 cd ~/Linux-Dot-Files/Themes
@@ -212,11 +208,14 @@ cd ~
 # Install Zathura (PDF Reader)
 # ==============================================================================
 
-echo "Installing Zathura..."
+echo -e "\n\e[1mInstalling Zathura.\e[0m"
+
 echo -n "    Installing Zathura..."
 run_with_spinner "install_zathura" yay -S zathura --noconfirm
+
 echo -n "    Installing Zathura Plugins..."
 run_with_spinner "install_zathura_pdf_poppler" yay -S zathura-pdf-poppler --noconfirm
+
 cd ~/Linux-Dot-Files/Home/user/.config
 echo -n "    Configuring Zathura..."
 run_with_spinner "move_zathura_config" mv zathura ~/.config
@@ -226,25 +225,29 @@ cd ~
 # Configure Wallpaper
 # ==============================================================================
 
-echo -n "Moving wallpaper to Pictures directory..."
+echo -e "\n\e[1mConfiguring Wallpaper.\e[0m"
+
+echo -n "    Moving wallpaper to Pictures directory..."
 cd ~/Linux-Dot-Files/Pictures
 run_with_spinner "move_wallpaper" mv Rouge.jpg ~/Pictures
 cd ~
 
-echo -n "Applying wallpaper..."
+echo -n "    Applying wallpaper..."
 run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file:///home/daniel/Pictures/Rouge.jpg")}'
 
 # ==============================================================================
 # Configure Splash Screen
 # ==============================================================================
 
-echo -n "Moving splash screen..."
+echo -e "\n\e[1mConfiguring Splash Screen.\e[0m"
+
+echo -n "    Moving splash screen..."
 cd ~/Linux-Dot-Files/Themes/Splash/
 sudo rm -rf ~/.local/share/plasma/look-and-feel/Rouge-Splash
 run_with_spinner "move_splash_screen" sudo mv Rouge-Splash/ ~/.local/share/plasma/look-and-feel/
 cd ~
 
-echo -n "Applying splash screen..."
+echo -n "    Applying splash screen..."
 cd ~/Linux-Dot-Files/Home/user/.config
 run_with_spinner "apply_splash_screen" mv ksplashrc ~/.config
 cd ~
@@ -253,21 +256,24 @@ cd ~
 # Configure Login Screen
 # ==============================================================================
 
-echo "Installing required packages for the login screen..."
+echo -e "\n\e[1mConfiguring Login Screen.\e[0m"
+
 echo -n "    Installing qt5-graphicaleffects..."
 run_with_spinner "install_qt5_graphicaleffects" yay -S qt5-graphicaleffects --noconfirm
+
 echo -n "    Installing qt5-quickcontrols..."
 run_with_spinner "install_qt5_quickcontrols" yay -S qt5-quickcontrols --noconfirm
+
 echo -n "    Installing qt5-quickcontrols2..."
 run_with_spinner "install_qt5_quickcontrols2" yay -S qt5-quickcontrols2 --noconfirm
 
-echo -n "Moving login screen..."
+echo -n "    Moving login screen..."
 cd ~/Linux-Dot-Files/Themes/Login/
 sudo rm -rf /usr/share/sddm/themes/Rouge
 run_with_spinner "move_login_screen" sudo mv Rouge/ /usr/share/sddm/themes/
 cd ~
 
-echo -n "Applying login screen..."
+echo -n "    Applying login screen..."
 cd ~/Linux-Dot-Files/Home/user/.config
 if [ ! -d "/etc/sddm.conf.d/" ]; then
     sudo mkdir /etc/sddm.conf.d/
@@ -279,71 +285,62 @@ cd ~
 # Configure .bashrc
 # ==============================================================================
 
-echo -n "Configuring .bashrc..."
+echo -e "\n\e[1mConfiguring .bashrc.\e[0m"
+
+echo -n "    Configuring .bashrc..."
 if is_step_completed "configure_bashrc"; then
-    printf "\e[33mSKIPPED\e[0m\n"
+    echo -e "\n\t\e[33mSKIPPED\e[0m"  # Added line break before "SKIPPED"
 else
-    cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bashrc" || printf "\e[31mFAILED\e[0m\n"
+    cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc && echo -e "\n\t\e[32mSUCCESS\e[0m" && log_step "configure_bashrc" || echo -e "\n\t\e[31mFAILED\e[0m"
 fi
 
 # ==============================================================================
 # Configure Bootloader
 # ==============================================================================
 
-echo -n "Configuring bootloader..."
+echo -e "\n\e[1mConfiguring Bootloader.\e[0m"
+
+echo -n "    Configuring bootloader..."
 cd /boot/loader/entries
 if is_step_completed "configure_bootloader"; then
-    printf "\e[33mSKIPPED\e[0m\n"
+    echo -e "\n\t\e[33mSKIPPED\e[0m"  # Added line break before "SKIPPED"
 else
-    for file in *_linux.conf; do sudo sed -i '/options/ s/$/ quiet/' "$file" && printf "\e[32mSUCCESS\e[0m\n" && log_step "configure_bootloader" || printf "\e[31mFAILED\e[0m\n"; done
+    for file in *_linux.conf; do
+        sudo sed -i '/options/ s/$/ quiet/' "$file" && echo -e "\n\t\e[32mSUCCESS\e[0m" && log_step "configure_bootloader" || echo -e "\n\t\e[31mFAILED\e[0m"
+    done
 fi
 cd ~
 
 # ==============================================================================
-# Install Utility Applications (Optional)
+# Install Anki
 # ==============================================================================
 
-echo "Do you want to install utility applications? (Zoom, WhatsApp, etc.) [Y/n]"
-read response
+echo -e "\n\e[1mInstalling Anki.\e[0m"
 
-if [ "$response" = "Y" ] || [ "$response" = "y" ]; then
-    printf "\nInstalling utility applications...\n"
+echo -n "    Installing Anki..."
+run_with_spinner "install_anki" yay -S anki-bin --noconfirm
 
-    # Install Zoom
-    echo -n "Installing Zoom..."
-    run_with_spinner "install_zoom" yay -S zoom --noconfirm
-
-    # Install WhatsApp
-    echo -n "Installing WhatsApp..."
-    run_with_spinner "install_whatsapp" yay -S whatsdesk-bin --noconfirm
-
-    # Install Anki
-    echo -n "Installing Anki..."
-    run_with_spinner "install_anki" yay -S anki-bin --noconfirm
-
-    # Apply Anki Addons
-    echo -n "Applying Anki addons..."
-    cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
-    run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
-    cd ~
-else
-    echo "Skipping utility applications installation."
-fi
-
-# ==============================================================================
-# Cleanup
-# ==============================================================================
-
-echo -n "Cleaning up..."
-run_with_spinner "cleanup" rm -rf ~/Linux-Dot-Files
+echo -n "    Applying Anki addons..."
+mkdir -p ~/.local/share/Anki2/addons21/
+cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
+run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
+cd ~
 
 # ==============================================================================
 # Final Steps
 # ==============================================================================
 
-printf "\nInstallation complete!\n"
-printf "\nRebooting system in 10 seconds...\n"
-sleep 10
-reboot
+# Kill the keep_sudo_alive process
+kill $SUDO_KEEP_ALIVE_PID
+wait $SUDO_KEEP_ALIVE_PID 2>/dev/null
 
-# End of script
+# End the script with a message
+echo -e "\n\e[1mInstallation complete.\e[0m"
+read -p "Do you want to reboot the system now? (y/n): " confirm
+if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Rebooting system in 10 seconds."
+    sleep 10
+    reboot
+else
+    echo "Reboot canceled. Please reboot manually when ready."
+fi

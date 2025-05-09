@@ -327,6 +327,25 @@ run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
 cd ~
 
 # ==============================================================================
+# Install Wine and Lutris
+# ==============================================================================
+
+echo -e "\n\e[1mInstalling Wine and Lutris.\e[0m"
+
+# Enable multilib repository
+if ! grep -q "\[multilib\]" /etc/pacman.conf; then
+    echo -n "    Enabling multilib repository..."
+    run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
+    run_with_spinner "update_multilib" sudo pacman -Sy --noconfirm
+fi
+
+# Install Wine and Lutris
+echo -n "    Installing Wine..."
+run_with_spinner "install_wine" sudo pacman -S wine wine-mono winetricks --noconfirm
+echo -n "    Installing Lutris..."
+run_with_spinner "install_lutris" yay -S lutris --noconfirm
+
+# ==============================================================================
 # Final Steps
 # ==============================================================================
 

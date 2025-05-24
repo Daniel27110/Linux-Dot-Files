@@ -5,9 +5,8 @@
 # ==============================================================================
 
 # This script is intended to work in the following environment:
-# - Arch Linux (or Arch based distros)
-# - KDE Plasma 6
-# - An active internet connection
+# - Arch Linux (should also work in any Arch based distribution)
+# - KDE Plasma 6 with an active internet connection
 # - Systemd-boot as the bootloader
 
 # How to use:
@@ -29,7 +28,8 @@
 # - Fcitx5 (Input Method Framework)
 # - Konsave (Theme Manager)
 # - Zathura (PDF Reader)
-# - Zathura PDF Poppler (Zathura Plugin)
+# - Anki (Flashcard Application)
+# - Wine and Lutris (Game Manager)
 
 # ==============================================================================
 # Initialization
@@ -67,11 +67,11 @@ keep_sudo_alive() {
 spinner() {
     local pid=$!
     local delay=0.1
-    local spinstr='|/-\'
+    local spinster='|/-\'
     local i=0
     while kill -0 $pid 2>/dev/null; do
         i=$(( (i + 1) % 4 ))
-        printf "\r\t[%c]  " "${spinstr:$i:1}"  # Add a tab before the spinner
+        printf "\r\t[%c]  " "${spinster:$i:1}"  # Add a tab before the spinner
         sleep $delay
     done
     printf "\r\t    \r"  # Clear the spinner line with a tab
@@ -199,9 +199,9 @@ echo -n "    Installing Konsave..."
 run_with_spinner "install_konsave" yay -S konsave --noconfirm
 cd ~/Linux-Dot-Files/Themes
 echo -n "    Importing Konsave theme..."
-run_with_spinner "import_konsave_theme" konsave -i Rouge-03-08-24.knsv
+run_with_spinner "import_konsave_theme" konsave -i Rouge-05-24-25.knsv
 echo -n "    Applying Konsave theme..."
-run_with_spinner "apply_konsave_theme" konsave -a Rouge-03-08-24
+run_with_spinner "apply_konsave_theme" konsave -a Rouge-05-24-25
 cd ~
 
 # ==============================================================================

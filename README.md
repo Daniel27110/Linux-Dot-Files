@@ -17,7 +17,7 @@ This config is intended for the KDE Plasma 6 Desktop Environment.
 
 - <strong>Icons:</strong> [Papirus Icon Theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme)
 
-- <strong>Desktop Enviroment:</strong> [KDE](https://kde.org/)
+- <strong>Desktop Environment:</strong> [KDE](https://kde.org/)
 
 - <strong>Terminal Font:</strong> [Fira Code](https://github.com/tonsky/FiraCode)
 

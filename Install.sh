@@ -341,6 +341,10 @@ if ! grep -q "^#\[multilib\]" /etc/pacman.conf; then
     run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 fi
 
+# Update the multilib repository
+echo -n "    Updating system with multilib..."
+run_with_spinner "update_multilib" sudo pacman -Syu --noconfirm
+
 echo -n "    Installing Steam..."
 run_with_spinner "install_steam" yay -S steam --noconfirm
 

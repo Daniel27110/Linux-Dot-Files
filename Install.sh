@@ -29,7 +29,7 @@
 # - Konsave (Theme Manager)
 # - Zathura (PDF Reader)
 # - Anki (Flashcard Application)
-# - Wine and Lutris (Game Manager)
+# - Steam (Gaming Platform)
 
 # ==============================================================================
 # Initialization
@@ -64,40 +64,43 @@ keep_sudo_alive() {
 }
 
 # Improved spinner function with consistent tab alignment
-spinner() {
-    local pid=$!
-    local delay=0.1
-    local spinster='|/-\'
-    local i=0
-    while kill -0 $pid 2>/dev/null; do
-        i=$(( (i + 1) % 4 ))
-        printf "\r\t[%c]  " "${spinster:$i:1}"  # Add a tab before the spinner
-        sleep $delay
-    done
-    printf "\r\t    \r"  # Clear the spinner line with a tab
-}
-
-# Function to run a command with spinner
 run_with_spinner() {
     local step="$1"
     shift
     echo ""
     if is_step_completed "$step"; then
-        printf "\t\e[33mSKIPPED\e[0m\n"  # Add a tab before "SKIPPED"
+        printf "\t\e[33mSKIPPED\e[0m\n"
         return 0
     fi
-    local command="$*"
-    "$@" > /dev/null 2>&1 &
-    spinner
-    wait $!
+    # Start the command in the foreground, but capture its PID for the spinner
+    (
+        "$@" > /dev/null 2>&1
+    ) &
+    local cmd_pid=$!
+    spinner $cmd_pid
+    wait $cmd_pid
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
-        printf "\t\e[31mFAILED\e[0m\n"  # Add a tab before "FAILED"
+        printf "\t\e[31mFAILED\e[0m\n"
     else
-        printf "\t\e[32mSUCCESS\e[0m\n"  # Add a tab before "SUCCESS"
+        printf "\t\e[32mSUCCESS\e[0m\n"
         log_step "$step"
     fi
     return $exit_code
+}
+
+# Spinner function to show progress while a command is running
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinster='|/-\'
+    local i=0
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i + 1) % 4 ))
+        printf "\r\t[%c]  " "${spinster:$i:1}"
+        sleep $delay
+    done
+    printf "\r\t    \r"
 }
 
 # Keep sudo session alive
@@ -327,23 +330,50 @@ run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
 cd ~
 
 # ==============================================================================
-# Install Wine and Lutris
+# Install Steam and Proton GE
 # ==============================================================================
 
-echo -e "\n\e[1mInstalling Wine and Lutris.\e[0m"
+echo -e "\n\e[1mInstalling Steam and Proton GE.\e[0m"
 
-# Enable multilib repository
-if ! grep -q "\[multilib\]" /etc/pacman.conf; then
+# Enable the multilib repository if not already enabled
+if ! grep -q "^#\[multilib\]" /etc/pacman.conf; then
     echo -n "    Enabling multilib repository..."
-    run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
-    run_with_spinner "update_multilib" sudo pacman -Sy --noconfirm
+    run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 fi
 
-# Install Wine and Lutris
-echo -n "    Installing Wine..."
-run_with_spinner "install_wine" sudo pacman -S wine wine-mono winetricks --noconfirm
-echo -n "    Installing Lutris..."
-run_with_spinner "install_lutris" yay -S lutris --noconfirm
+echo -n "    Installing Steam..."
+run_with_spinner "install_steam" yay -S steam --noconfirm
+
+echo -n "    Installing Proton GE..."
+run_with_spinner "install_proton_ge" yay -S proton-ge-custom-bin --noconfirm
+
+
+# ==============================================================================
+# Install XOW (Xbox One Controller Driver)
+# ==============================================================================
+
+echo -e "\n\e[1mInstalling Xow (Xbox Wireless Dongle support).\e[0m"
+
+echo -n "    Cloning xow repository..."
+run_with_spinner "clone_xow_repo" git clone https://github.com/medusalix/xow
+
+cd xow
+echo -n "    Building xow..."
+run_with_spinner "build_xow" make BUILD=RELEASE
+
+echo -n "    Installing xow..."
+run_with_spinner "install_xow" sudo make install
+
+echo -n "    Downloading xow firmware..."
+run_with_spinner "download_xow_firmware" sudo xow-get-firmware.sh --skip-disclaimer
+
+echo -n "    Enabling xow service..."
+run_with_spinner "enable_xow_service" sudo systemctl enable xow
+
+echo -n "    Starting xow service..."
+run_with_spinner "start_xow_service" sudo systemctl start xow
+
+
 
 # ==============================================================================
 # Final Steps

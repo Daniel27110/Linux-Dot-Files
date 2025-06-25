@@ -29,7 +29,7 @@
 # - Konsave (Theme Manager)
 # - Zathura (PDF Reader)
 # - Anki (Flashcard Application)
-# - Steam (Gaming Platform)
+# - Lutris (Game Manager)
 
 # ==============================================================================
 # Initialization
@@ -138,16 +138,22 @@ echo -e "\n\e[1mInstalling applications.\e[0m"
 echo -n "    Installing Firefox..."
 run_with_spinner "install_firefox" yay -S firefox --noconfirm
 
+echo -n "    Installing Dolphin Plugins..."
+run_with_spinner "install_dolphin_plugins" yay -S dolphin-plugins --noconfirm
+
 echo -n "    Installing Firewalld..."
 run_with_spinner "install_firewalld" yay -S firewalld --noconfirm
+
 echo -n "    Enabling Firewalld..."
 run_with_spinner "enable_firewalld" sudo systemctl enable firewalld.service
+
 echo -n "    Starting Firewalld..."
 run_with_spinner "start_firewalld" sudo systemctl start firewalld.service
 
 echo -n "    Installing Visual Studio Code..."
 run_with_spinner "clone_vscode_repo" git clone https://aur.archlinux.org/visual-studio-code-bin.git
 cd visual-studio-code-bin
+
 echo -n "    Building and installing Visual Studio Code..."
 run_with_spinner "makepkg_vscode" makepkg -si --noconfirm
 cd ~
@@ -236,7 +242,8 @@ run_with_spinner "move_wallpaper" mv Rouge.jpg ~/Pictures
 cd ~
 
 echo -n "    Applying wallpaper..."
-run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file:///home/daniel/Pictures/Rouge.jpg")}'
+run_with_spinner "apply_wallpaper" qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = "org.kde.image";d.currentConfigGroup = Array("Wallpaper","org.kde.image","General");d.writeConfig("Image", "file://'"$HOME"'/Pictures/Rouge.jpg");}'
+
 
 # ==============================================================================
 # Configure Splash Screen
@@ -345,8 +352,8 @@ fi
 echo -n "    Updating system with multilib..."
 run_with_spinner "update_multilib" sudo pacman -Syu --noconfirm
 
-echo -n "    Installing Steam..."
-run_with_spinner "install_steam" yay -S steam --noconfirm
+echo -n "    Installing Lutris..."
+run_with_spinner "install_lutris" yay -S lutris --noconfirm
 
 echo -n "    Installing Proton GE..."
 run_with_spinner "install_proton_ge" yay -S proton-ge-custom-bin --noconfirm

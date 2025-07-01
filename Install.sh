@@ -358,6 +358,24 @@ run_with_spinner "install_lutris" yay -S lutris --noconfirm
 echo -n "    Installing Proton GE..."
 run_with_spinner "install_proton_ge" yay -S proton-ge-custom-bin --noconfirm
 
+# Install Feral GameMode
+echo -n "    Installing Feral GameMode..."
+run_with_spinner "install_feral_gamemode" yay -S gamemode lib32-gamemode --noconfirm
+
+# Add the user to the 'games' group. "Without it, the GameMode user daemon will not have rights to change CPU governor or the niceness of processes.". 
+
+echo -n "    Adding user to 'games' group..." 
+
+# Check if the 'games' group exists
+if getent group games > /dev/null; then
+    run_with_spinner "add_user_to_games_group" sudo usermod -aG games $USER
+else
+    echo -n "    Creating 'games' group..."
+    run_with_spinner "create_games_group" sudo groupadd games
+    run_with_spinner "add_user_to_games_group" sudo usermod -aG games $USER
+fi
+
+
 
 # ==============================================================================
 # Install XOW (Xbox One Controller Driver)

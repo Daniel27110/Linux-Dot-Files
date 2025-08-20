@@ -30,6 +30,9 @@
 # - Zathura (PDF Reader)
 # - Anki (Flashcard Application)
 # - Lutris (Game Manager)
+# - Proton GE (Proton for running Windows games)
+# - Feral GameMode (Game Performance Optimizations)
+# - MPV (Media Player)
 
 # ==============================================================================
 # Initialization
@@ -199,6 +202,11 @@ echo -n "    Configuring Fcitx5 environment variables..."
 run_with_spinner "configure_fcitx5" bash -c 'echo "GTK_IM_MODULE=fcitx" | sudo tee -a /etc/environment > /dev/null && \
 echo "QT_IM_MODULE=fcitx" | sudo tee -a /etc/environment > /dev/null && \
 echo "XMODIFIERS=@im=fcitx" | sudo tee -a /etc/environment > /dev/null'
+
+echo -n "    Applying Fcitx5 configuration files..."
+cd ~/Linux-Dot-Files/Home/user/.config
+run_with_spinner "apply_fcitx5_config" mv fcitx5 ~/.config/
+cd ~
 
 # ==============================================================================
 # Install Konsave (Theme Manager)
@@ -405,6 +413,21 @@ run_with_spinner "enable_xow_service" sudo systemctl enable xow
 
 echo -n "    Starting xow service..."
 run_with_spinner "start_xow_service" sudo systemctl start xow
+
+
+
+# ==============================================================================
+# MPV (Media Player)
+# ==============================================================================
+
+echo -e "\n\e[1mInstalling MPV.\e[0m"
+
+echo -n "    Installing MPV..."
+run_with_spinner "install_mpv" sudo pacman -S mpv --noconfirm
+
+echo -n "    Applying MPV configuration files..."
+cd ~/Linux-Dot-Files/Home/user/.config
+run_with_spinner "apply_mpv_config" mv mpv ~/.config/
 
 
 

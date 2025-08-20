@@ -1,0 +1,32 @@
+[Groups/0]
+# Group Name
+Name=ES
+# Layout
+Default Layout=latam
+# Default Input Method
+DefaultIM=keyboard-latam
+
+[Groups/0/Items/0]
+# Name
+Name=keyboard-latam
+# Layout
+Layout=
+
+[Groups/1]
+# Group Name
+Name=JP
+# Layout
+Default Layout=us
+# Default Input Method
+DefaultIM=mozc
+
+[Groups/1/Items/0]
+# Name
+Name=mozc
+# Layout
+Layout=
+
+[GroupOrder]
+0=ES
+1=JP
+

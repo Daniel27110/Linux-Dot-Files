@@ -217,9 +217,9 @@ echo -n "    Installing Konsave..."
 run_with_spinner "install_konsave" yay -S konsave --noconfirm
 cd ~/Linux-Dot-Files/Themes
 echo -n "    Importing Konsave theme..."
-run_with_spinner "import_konsave_theme" konsave -i Rouge-05-24-25.knsv
+run_with_spinner "import_konsave_theme" konsave -i Rouge-08-20-25.knsv
 echo -n "    Applying Konsave theme..."
-run_with_spinner "apply_konsave_theme" konsave -a Rouge-05-24-25
+run_with_spinner "apply_konsave_theme" konsave -a Rouge-08-20-25
 cd ~
 
 # ==============================================================================

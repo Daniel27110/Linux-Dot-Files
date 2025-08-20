@@ -52,14 +52,15 @@ if [ ! -f $LOG_FILE ]; then
     touch $LOG_FILE
 fi
 
+trap 'kill $SUDO_KEEP_ALIVE_PID; wait $SUDO_KEEP_ALIVE_PID 2>/dev/null' EXIT
+
 # Prompt for sudo password upfront to prevent interruptions
-sudo -k  # Clear any existing sudo session
 echo "Please enter your sudo password:"
 sudo -v
 
-# Keep sudo session alive
+# Keep sudo session alive for the duration of the script
 keep_sudo_alive() {
-    while true; do sudo -v; sleep 60; done &
+    while true; do sudo -n -v; sleep 30; done &
     SUDO_KEEP_ALIVE_PID=$!
 }
 
@@ -337,13 +338,16 @@ run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
 cd ~
 
 # ==============================================================================
-# Install Steam and Proton GE
+# Install Lutris and Proton GE
 # ==============================================================================
 
-echo -e "\n\e[1mInstalling Steam and Proton GE.\e[0m"
+echo -e "\n\e[1mInstalling Lutris and Proton GE.\e[0m"
 
 # Enable the multilib repository if not already enabled
-if ! grep -q "^#\[multilib\]" /etc/pacman.conf; then
+if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+    echo -n "    Enabling multilib repository..."
+    run_with_spinner "enable_multilib" sudo sed -i '/^#\[multilib\]$/,/^#Include/s/^#//' /etc/pacman.conf
+elif grep -q "^#Include = /etc/pacman.d/mirrorlist" /etc/pacman.conf; then
     echo -n "    Enabling multilib repository..."
     run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
 fi

@@ -432,6 +432,27 @@ run_with_spinner "apply_mpv_config" mv mpv ~/.config/
 
 
 # ==============================================================================
+# Replace Arch's Captive Portal Detection with Firefox
+# ==============================================================================
+
+echo -e "\n\e[1mReplacing Arch's Captive Portal Detection with Firefox.\e[0m"
+
+# Create the following script at /etc/NetworkManager/conf.d/20-connectivity.conf
+# [connectivity]
+# uri=http://detectportal.firefox.com/success.txt
+# interval=300
+
+echo -n "    Configuring NetworkManager captive portal detection..."
+run_with_spinner "configure_captive_portal" sudo bash -c 'cat << EOF > /etc/NetworkManager/conf.d/20-connectivity.conf
+[connectivity]
+uri=http://detectportal.firefox.com/success.txt
+interval=300
+EOF'
+
+echo -n "    Restarting NetworkManager service..."
+run_with_spinner "restart_networkmanager" sudo systemctl restart NetworkManager
+
+# ==============================================================================
 # Final Steps
 # ==============================================================================
 

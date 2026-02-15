@@ -55,11 +55,13 @@ if [ ! -f $LOG_FILE ]; then
     touch $LOG_FILE
 fi
 
-trap 'kill $SUDO_KEEP_ALIVE_PID; wait $SUDO_KEEP_ALIVE_PID 2>/dev/null' EXIT
-
-# Prompt for sudo password upfront to prevent interruptions
-echo "Please enter your sudo password:";
-sudo -v || { echo "Failed to get sudo access. Exiting."; exit 1; }
+# Check if the user already has an active sudo session
+if sudo -n true 2>/dev/null; then
+    echo "Sudo access is already available. Continuing with the installation."
+else
+    echo "Please enter your sudo password:"
+    sudo -v || { echo "Failed to get sudo access. Exiting."; exit 1; }
+fi
 
 # Keep sudo session alive for the duration of the script
 keep_sudo_alive() {

@@ -126,8 +126,10 @@ run_with_spinner "update_system" sudo pacman -Syu --noconfirm
 echo -e "\n\e[1mInstalling Yay.\e[0m"
 echo -n "    Installing required packages..."
 run_with_spinner "install_yay" sudo pacman -S --needed git base-devel --noconfirm
+
 echo -n "    Cloning yay repository..."
 run_with_spinner "clone_yay_repo" git clone https://aur.archlinux.org/yay-bin.git
+
 cd yay-bin
 echo -n "    Building and installing yay..."
 run_with_spinner "makepkg_yay" makepkg -si --noconfirm
@@ -176,8 +178,10 @@ echo -e "\n\e[1mInstalling themes and fonts.\e[0m"
 
 echo -n "    Installing Papirus Icon Theme..."
 run_with_spinner "install_papirus_icon_theme" yay -S papirus-icon-theme --noconfirm
+
 echo -n "    Installing Papirus Folders..."
 run_with_spinner "install_papirus_folders" yay -S papirus-folders-git --noconfirm
+
 echo -n "    Configuring Papirus Folders..."
 run_with_spinner "configure_papirus_folders" papirus-folders -C bluegrey --theme Papirus-Dark
 
@@ -186,6 +190,18 @@ run_with_spinner "install_fira_code_font" yay -S ttf-fira-code --noconfirm
 
 echo -n "    Installing Noto Fonts CJK..."
 run_with_spinner "install_noto_fonts_cjk" yay -S noto-fonts-cjk --noconfirm
+
+# ==============================================================================
+# Install Zenity GTK Dialogs
+# ==============================================================================
+
+echo -e "\n\e[1mInstalling Zenity GTK Dialogs.\e[0m"
+
+echo -n "    Installing Zenity GTK Dialogs dependencies..."
+run_with_spinner "install_zenity_dependencies" yay -S --noconfirm breeze-gtk kde-gtk-config gsettings-desktop-schemas dconf
+
+echo -n "    Installing Zenity GTK Dialogs..."
+run_with_spinner "install_zenity" yay -S zenity-gtk3 --noconfirm
 
 # ==============================================================================
 # Configure Fcitx5 (Input Method Framework)
@@ -215,9 +231,11 @@ cd ~
 echo -e "\n\e[1mInstalling Konsave.\e[0m"
 echo -n "    Installing Konsave..."
 run_with_spinner "install_konsave" yay -S konsave --noconfirm
+
 cd ~/Linux-Dot-Files/Themes
 echo -n "    Importing Konsave theme..."
 run_with_spinner "import_konsave_theme" konsave -i rouge-12-02-26.knsv
+
 echo -n "    Applying Konsave theme..."
 run_with_spinner "apply_konsave_theme" konsave -a rouge-12-02-26
 cd ~
@@ -341,6 +359,7 @@ run_with_spinner "install_anki" yay -S anki-bin --noconfirm
 
 echo -n "    Applying Anki addons..."
 mkdir -p ~/.local/share/Anki2/addons21/
+
 cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
 run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
 cd ~

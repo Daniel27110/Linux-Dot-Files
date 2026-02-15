@@ -58,8 +58,8 @@ fi
 trap 'kill $SUDO_KEEP_ALIVE_PID; wait $SUDO_KEEP_ALIVE_PID 2>/dev/null' EXIT
 
 # Prompt for sudo password upfront to prevent interruptions
-echo "Please enter your sudo password:"
-sudo -v
+echo "Please enter your sudo password:";
+sudo -v || { echo "Failed to get sudo access. Exiting."; exit 1; }
 
 # Keep sudo session alive for the duration of the script
 keep_sudo_alive() {

@@ -47,7 +47,7 @@ log_step() {
 
 # Function to check if a step is already completed
 is_step_completed() {
-    grep -q "$1" $LOG_FILE
+    grep -qw "$1" $LOG_FILE
 }
 
 # Initialize log file
@@ -65,7 +65,7 @@ fi
 
 # Keep sudo session alive for the duration of the script
 keep_sudo_alive() {
-    while true; do sudo -n -v; sleep 30; done &
+    while true; do sudo -n -v; sleep 10; done &
     SUDO_KEEP_ALIVE_PID=$!
 }
 

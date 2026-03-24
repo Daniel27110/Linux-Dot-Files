@@ -69,6 +69,28 @@ keep_sudo_alive() {
     SUDO_KEEP_ALIVE_PID=$!
 }
 
+# Prompt helper for yes/no questions
+prompt_yes_no() {
+    local question="$1"
+    local default="$2"
+    local answer=""
+    local prompt_suffix="[y/N]"
+
+    if [[ "$default" =~ ^[Yy]$ ]]; then
+        prompt_suffix="[Y/n]"
+    fi
+
+    while true; do
+        read -rp "    ${question} ${prompt_suffix}: " answer
+        answer="${answer:-$default}"
+        case "$answer" in
+            [Yy]) return 0 ;;
+            [Nn]) return 1 ;;
+            *) echo "    Please answer with y or n." ;;
+        esac
+    done
+}
+
 # Improved spinner function with consistent tab alignment
 run_with_spinner() {
     local step="$1"
@@ -108,6 +130,36 @@ spinner() {
     done
     printf "\r\t    \r"
 }
+
+# ==============================================================================
+# Installation Options
+# ==============================================================================
+
+echo -e "\n\e[1mWelcome to the Rouge Linux setup installer.\e[0m"
+echo "This script installs applications, themes, and configurations for customizing KDE Plasma 6 on Arch Linux."
+echo "Choose optional software below before installation starts."
+
+INSTALL_ANKI=false
+INSTALL_GAMING_SUITE=false
+INSTALL_QBITTORRENT=false
+
+echo -e "\n\e[1mOptional software\e[0m"
+if prompt_yes_no "Install Anki (flashcards)" "y"; then
+    INSTALL_ANKI=true
+fi
+
+if prompt_yes_no "Install Gaming Support Suite (Lutris, Proton GE, GameMode, Xow)" "y"; then
+    INSTALL_GAMING_SUITE=true
+fi
+
+if prompt_yes_no "Install qBittorrent" "n"; then
+    INSTALL_QBITTORRENT=true
+fi
+
+echo -e "\n\e[1mSelections\e[0m"
+echo "    Anki: $INSTALL_ANKI"
+echo "    Gaming Support Suite: $INSTALL_GAMING_SUITE"
+echo "    qBittorrent: $INSTALL_QBITTORRENT"
 
 # Keep sudo session alive
 keep_sudo_alive
@@ -171,6 +223,13 @@ run_with_spinner "install_gwenview" yay -S gwenview --noconfirm
 
 echo -n "    Installing Kio-admin..."
 run_with_spinner "install_kio_admin" yay -S kio-admin --noconfirm
+
+if [ "$INSTALL_QBITTORRENT" = true ]; then
+    echo -n "    Installing qBittorrent..."
+    run_with_spinner "install_qbittorrent" yay -S qbittorrent --noconfirm
+else
+    echo -e "    Skipping qBittorrent."
+fi
 
 # ==============================================================================
 # Install Themes and Fonts
@@ -354,58 +413,65 @@ cd ~
 # Install Anki
 # ==============================================================================
 
-echo -e "\n\e[1mInstalling Anki.\e[0m"
+if [ "$INSTALL_ANKI" = true ]; then
+    echo -e "\n\e[1mInstalling Anki.\e[0m"
 
-echo -n "    Installing Anki..."
-run_with_spinner "install_anki" yay -S anki-bin --noconfirm
+    echo -n "    Installing Anki..."
+    run_with_spinner "install_anki" yay -S anki-bin --noconfirm
 
-echo -n "    Applying Anki addons..."
-mkdir -p ~/.local/share/Anki2/addons21/
+    echo -n "    Applying Anki addons..."
+    mkdir -p ~/.local/share/Anki2/addons21/
 
-cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
-run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
-cd ~
-
-# ==============================================================================
-# Install Lutris and Proton GE
-# ==============================================================================
-
-echo -e "\n\e[1mInstalling Lutris and Proton GE.\e[0m"
-
-# Enable the multilib repository if not already enabled
-if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
-    echo -n "    Enabling multilib repository..."
-    run_with_spinner "enable_multilib" sudo sed -i '/^#\[multilib\]$/,/^#Include/s/^#//' /etc/pacman.conf
-elif grep -q "^#Include = /etc/pacman.d/mirrorlist" /etc/pacman.conf; then
-    echo -n "    Enabling multilib repository..."
-    run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
+    cd ~/Linux-Dot-Files/Home/user/.local/share/Anki2/addons21/
+    run_with_spinner "apply_anki_addons" mv * ~/.local/share/Anki2/addons21/
+    cd ~
+else
+    echo -e "\n\e[1mSkipping Anki (not selected).\e[0m"
 fi
 
-# Update the multilib repository
-echo -n "    Updating system with multilib..."
-run_with_spinner "update_multilib" sudo pacman -Syu --noconfirm
+# ==============================================================================
+# Install Gaming Support Suite
+# ==============================================================================
 
-echo -n "    Installing Lutris..."
-run_with_spinner "install_lutris" yay -S lutris --noconfirm
+if [ "$INSTALL_GAMING_SUITE" = true ]; then
+    echo -e "\n\e[1mInstalling Gaming Support Suite.\e[0m"
 
-echo -n "    Installing Proton GE..."
-run_with_spinner "install_proton_ge" yay -S proton-ge-custom-bin --noconfirm
+    # Enable the multilib repository if not already enabled
+    if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+        echo -n "    Enabling multilib repository..."
+        run_with_spinner "enable_multilib" sudo sed -i '/^#\[multilib\]$/,/^#Include/s/^#//' /etc/pacman.conf
+    elif grep -q "^#Include = /etc/pacman.d/mirrorlist" /etc/pacman.conf; then
+        echo -n "    Enabling multilib repository..."
+        run_with_spinner "enable_multilib" sudo sed -i '/\[multilib\]/,/Include/s/^#//' /etc/pacman.conf
+    fi
 
-# Install Feral GameMode
-echo -n "    Installing Feral GameMode..."
-run_with_spinner "install_feral_gamemode" yay -S gamemode lib32-gamemode --noconfirm
+    # Update the multilib repository
+    echo -n "    Updating system with multilib..."
+    run_with_spinner "update_multilib" sudo pacman -Syu --noconfirm
 
-# Add the user to the 'games' group. "Without it, the GameMode user daemon will not have rights to change CPU governor or the niceness of processes.". 
+    echo -n "    Installing Lutris..."
+    run_with_spinner "install_lutris" yay -S lutris --noconfirm
 
-echo -n "    Adding user to 'games' group..." 
+    echo -n "    Installing Proton GE..."
+    run_with_spinner "install_proton_ge" yay -S proton-ge-custom-bin --noconfirm
 
-# Check if the 'games' group exists
-if getent group games > /dev/null; then
-    run_with_spinner "add_user_to_games_group" sudo usermod -aG games $USER
+    # Install Feral GameMode
+    echo -n "    Installing Feral GameMode..."
+    run_with_spinner "install_feral_gamemode" yay -S gamemode lib32-gamemode --noconfirm
+
+    # Add the user to the 'games' group. "Without it, the GameMode user daemon will not have rights to change CPU governor or the niceness of processes.".
+    echo -n "    Adding user to 'games' group..."
+
+    # Check if the 'games' group exists
+    if getent group games > /dev/null; then
+        run_with_spinner "add_user_to_games_group" sudo usermod -aG games $USER
+    else
+        echo -n "    Creating 'games' group..."
+        run_with_spinner "create_games_group" sudo groupadd games
+        run_with_spinner "add_user_to_games_group" sudo usermod -aG games $USER
+    fi
 else
-    echo -n "    Creating 'games' group..."
-    run_with_spinner "create_games_group" sudo groupadd games
-    run_with_spinner "add_user_to_games_group" sudo usermod -aG games $USER
+    echo -e "\n\e[1mSkipping Gaming Support Suite (not selected).\e[0m"
 fi
 
 
@@ -414,26 +480,30 @@ fi
 # Install XOW (Xbox One Controller Driver)
 # ==============================================================================
 
-echo -e "\n\e[1mInstalling Xow (Xbox Wireless Dongle support).\e[0m"
+if [ "$INSTALL_GAMING_SUITE" = true ]; then
+    echo -e "\n\e[1mInstalling Xow (Xbox Wireless Dongle support).\e[0m"
 
-echo -n "    Cloning xow repository..."
-run_with_spinner "clone_xow_repo" git clone https://github.com/medusalix/xow
+    echo -n "    Cloning xow repository..."
+    run_with_spinner "clone_xow_repo" git clone https://github.com/medusalix/xow
 
-cd xow
-echo -n "    Building xow..."
-run_with_spinner "build_xow" make BUILD=RELEASE
+    cd xow
+    echo -n "    Building xow..."
+    run_with_spinner "build_xow" make BUILD=RELEASE
 
-echo -n "    Installing xow..."
-run_with_spinner "install_xow" sudo make install
+    echo -n "    Installing xow..."
+    run_with_spinner "install_xow" sudo make install
 
-echo -n "    Downloading xow firmware..."
-run_with_spinner "download_xow_firmware" sudo xow-get-firmware.sh --skip-disclaimer
+    echo -n "    Downloading xow firmware..."
+    run_with_spinner "download_xow_firmware" sudo xow-get-firmware.sh --skip-disclaimer
 
-echo -n "    Enabling xow service..."
-run_with_spinner "enable_xow_service" sudo systemctl enable xow
+    echo -n "    Enabling xow service..."
+    run_with_spinner "enable_xow_service" sudo systemctl enable xow
 
-echo -n "    Starting xow service..."
-run_with_spinner "start_xow_service" sudo systemctl start xow
+    echo -n "    Starting xow service..."
+    run_with_spinner "start_xow_service" sudo systemctl start xow
+else
+    echo -e "\n\e[1mSkipping Xow (Gaming Support Suite not selected).\e[0m"
+fi
 
 
 

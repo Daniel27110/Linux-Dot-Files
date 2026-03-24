@@ -142,6 +142,7 @@ echo "Choose optional software below before installation starts."
 INSTALL_ANKI=false
 INSTALL_GAMING_SUITE=false
 INSTALL_QBITTORRENT=false
+CONFIGURE_GIT_PROFILE=false
 
 echo -e "\n\e[1mOptional software\e[0m"
 if prompt_yes_no "Install Anki (flashcards)" "y"; then
@@ -156,10 +157,15 @@ if prompt_yes_no "Install qBittorrent" "n"; then
     INSTALL_QBITTORRENT=true
 fi
 
+if prompt_yes_no "Configure Git global profile (name + email)" "n"; then
+    CONFIGURE_GIT_PROFILE=true
+fi
+
 echo -e "\n\e[1mSelections\e[0m"
 echo "    Anki: $INSTALL_ANKI"
 echo "    Gaming Support Suite: $INSTALL_GAMING_SUITE"
 echo "    qBittorrent: $INSTALL_QBITTORRENT"
+echo "    Configure Git profile: $CONFIGURE_GIT_PROFILE"
 
 # Keep sudo session alive
 keep_sudo_alive
@@ -390,6 +396,22 @@ if is_step_completed "configure_bashrc"; then
     echo -e "\n\t\e[33mSKIPPED\e[0m"  # Added line break before "SKIPPED"
 else
     cat ~/Linux-Dot-Files/Home/user/.bashrc_append >> ~/.bashrc && echo -e "\n\t\e[32mSUCCESS\e[0m" && log_step "configure_bashrc" || echo -e "\n\t\e[31mFAILED\e[0m"
+fi
+
+# ==============================================================================
+# Configure Git Profile
+# ==============================================================================
+
+if [ "$CONFIGURE_GIT_PROFILE" = true ]; then
+    echo -e "\n\e[1mConfiguring Git profile.\e[0m"
+
+    echo -n "    Setting Git user.name..."
+    run_with_spinner "configure_git_user_name" git config --global user.name "Daniel Vargas"
+
+    echo -n "    Setting Git user.email..."
+    run_with_spinner "configure_git_user_email" git config --global user.email d.vargasu@uniandes.edu.co
+else
+    echo -e "\n\e[1mSkipping Git profile configuration (not selected).\e[0m"
 fi
 
 # ==============================================================================

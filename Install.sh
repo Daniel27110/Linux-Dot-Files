@@ -135,6 +135,20 @@ sync_sddm_config() {
     run_sudo install -m 0644 "$REPO_DIR/Home/user/.config/kde_settings.conf" /etc/sddm.conf.d/kde_settings.conf || return 1
 }
 
+set_systemd_boot_timeout_zero() {
+    local loader_conf="/boot/loader/loader.conf"
+
+    if run_sudo grep -Eq '^[[:space:]]*timeout[[:space:]]+0([[:space:]]|$)' "$loader_conf"; then
+        return 0
+    fi
+
+    if run_sudo grep -Eq '^[[:space:]]*timeout[[:space:]]+' "$loader_conf"; then
+        run_sudo sed -Ei 's/^[[:space:]]*timeout[[:space:]]+.*/timeout 0/' "$loader_conf"
+    else
+        printf '\ntimeout 0\n' | run_sudo tee -a "$loader_conf" > /dev/null
+    fi
+}
+
 # Prompt helper for yes/no questions
 prompt_yes_no() {
     local question="$1"
@@ -209,6 +223,7 @@ INSTALL_ANKI=false
 INSTALL_GAMING_SUITE=false
 INSTALL_QBITTORRENT=false
 CONFIGURE_GIT_PROFILE=false
+HIDE_SYSTEMD_BOOT_MENU=false
 
 echo -e "\n\e[1mOptional software\e[0m"
 if prompt_yes_no "Install Anki (flashcards)" "y"; then
@@ -227,11 +242,16 @@ if prompt_yes_no "Configure Git global profile (name + email)" "n"; then
     CONFIGURE_GIT_PROFILE=true
 fi
 
+if prompt_yes_no "Hide systemd-boot menu (set timeout to 0)" "n"; then
+    HIDE_SYSTEMD_BOOT_MENU=true
+fi
+
 echo -e "\n\e[1mSelections\e[0m"
 echo "    Anki: $INSTALL_ANKI"
 echo "    Gaming Support Suite: $INSTALL_GAMING_SUITE"
 echo "    qBittorrent: $INSTALL_QBITTORRENT"
 echo "    Configure Git profile: $CONFIGURE_GIT_PROFILE"
+echo "    Hide systemd-boot menu: $HIDE_SYSTEMD_BOOT_MENU"
 
 # Keep sudo session alive
 keep_sudo_alive
@@ -488,6 +508,13 @@ else
     done
 fi
 cd ~
+
+if [ "$HIDE_SYSTEMD_BOOT_MENU" = true ]; then
+    echo -n "    Setting systemd-boot timeout to 0..."
+    run_with_spinner "set_bootloader_timeout_zero" set_systemd_boot_timeout_zero
+else
+    echo -e "    Skipping systemd-boot timeout change (not selected)."
+fi
 
 # ==============================================================================
 # Install Anki

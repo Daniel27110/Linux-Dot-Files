@@ -384,10 +384,10 @@ run_with_spinner "install_konsave" run_yay -S --needed --noconfirm konsave
 
 cd "$REPO_DIR/Themes"
 echo -n "    Importing Konsave theme..."
-run_with_spinner "import_konsave_theme" konsave -i rouge-12-02-26.knsv
+run_with_spinner "import_konsave_theme" konsave -i rouge-27-07-26.knsv
 
 echo -n "    Applying Konsave theme..."
-run_with_spinner "apply_konsave_theme" konsave -a rouge-12-02-26
+run_with_spinner "apply_konsave_theme" konsave -a rouge-27-07-26
 cd ~
 
 # ==============================================================================
